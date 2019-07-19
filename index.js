@@ -4,7 +4,6 @@ module.exports = postcss.plugin('easy-media-query', plugin)
 
 function plugin (opts) {
   opts = opts || {}
-  var breakpoints = opts.breakpoints || {}
   var breakpoints = opts.breakpoints ? sortBreakpoint(opts.breakpoints) : {}
 
   return function (root, result) {
