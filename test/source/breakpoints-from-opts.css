@@ -15,3 +15,9 @@
     color: #000;
   }
 }
+
+@at tablet {
+  .element {
+    color: #fff;
+  }
+}

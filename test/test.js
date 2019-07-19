@@ -16,6 +16,7 @@ describe('Tests', function () {
         return matchExpected(file, done, {
           breakpoints: {
             tablet: '800px',
+            desktop: '1200px',
             mobile: '600px'
           }
         })

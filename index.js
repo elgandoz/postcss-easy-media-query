@@ -5,9 +5,10 @@ module.exports = postcss.plugin('easy-media-query', plugin)
 function plugin (opts) {
   opts = opts || {}
   var breakpoints = opts.breakpoints || {}
+  var breakpoints = opts.breakpoints ? sortBreakpoint(opts.breakpoints) : {}
 
   return function (root, result) {
-    root.walkAtRules(/(above|from-width|below|to-width|between(-(from|to))?$|breakpoint)/, function (rule) {
+    root.walkAtRules(/(above|from-width|below|to-width|at|between(-(from|to))?$|breakpoint)/, function (rule) {
       if (rule.name === 'breakpoint') {
         storeBreakpoint(rule.params)
         return rule.remove()
@@ -15,6 +16,17 @@ function plugin (opts) {
       rule.params = transformRule(rule.name, getMeasures(rule.params))
       rule.name = 'media'
     })
+  }
+
+  function sortBreakpoint (params) {
+    // console.log('\nBefore:', params, Array.isArray(breakpoints))
+    console.log(Object.keys(params))
+    var keysSorted = Object.keys(params).sort(function (a, b) {
+      return parseBreakpointUnit(params[a]) - parseBreakpointUnit(params[b])
+    })
+    console.log('Sorting...', keysSorted)
+    // console.log('After:', params)
+    return params
   }
 
   function storeBreakpoint (params) {
@@ -28,12 +40,15 @@ function plugin (opts) {
 
   function transformRule (name, measures) {
     switch (name) {
+      case 'at':
       case 'above':
         return formatQuery(['(min-width: ' + (measures[0] + 1) + 'px)'])
+      case 'from':
       case 'from-width':
         return formatQuery(['(min-width: ' + measures[0] + 'px)'])
       case 'below':
         return formatQuery(['(max-width: ' + (measures[0] - 1) + 'px)'])
+      case 'to':
       case 'to-width':
         return formatQuery(['(max-width: ' + measures[0] + 'px)'])
       case 'between':
@@ -51,6 +66,12 @@ function plugin (opts) {
           '(min-width: ' + (measures[0] + 1) + 'px)',
           '(max-width: ' + measures[1] + 'px)'
         ])
+      // case 'at':
+      //   console.log(measures)
+      //   return formatQuery([
+      //     '(min-width: ' + (measures[0] + 1) + 'px)',
+      //     '(max-width: ' + (measures[1] - 1) + 'px)' // find next
+      //   ])
     }
   }
 
